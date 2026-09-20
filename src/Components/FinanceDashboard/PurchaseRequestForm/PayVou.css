@@ -1,0 +1,179 @@
+.headTitle{
+    font-weight: bold;
+}
+.brTop{
+    border-top: 1px solid #e0e3e4;
+}
+.amInWord{
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.sigTitle{
+    text-align: center;
+    border-top: 1px solid;
+}
+
+td.MyBg{
+    background: #e0e3e4 !important;
+}
+
+.myBookingTable{
+    background: transparent;
+}
+
+.sno{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 25%;
+    background: transparent;
+  }
+
+  .Datein{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 25%;
+    background: transparent;
+  }
+
+  .dept{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 78%;
+    background: transparent;
+  }
+  .NameIn{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 75%;
+    background: transparent;
+  }
+  
+  .purpose{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 94%;
+    background: transparent;
+  }
+  
+
+  .budget{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 63%;
+    background: transparent;
+  }
+  
+  .requiredDate{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 75%;
+    background: transparent;
+  }
+
+  .requestedAmount{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 63%;
+    background: transparent;
+  }
+  
+  .CurrentSalary{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 75%;
+    background: transparent;
+  }
+
+  .ReqType{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 75%;
+    background: transparent;
+  }
+
+  td{
+    padding-top: 20px;
+  }
+
+
+  .itemListx{
+    margin-top: 3rem;
+    background: transparent;
+  }
+@media print {
+
+  .CurrentSalary{
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    vertical-align: super;
+    width: 65%;
+    background: transparent;
+  }
+
+
+    .purpose{
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        vertical-align: super;
+        width: 92%;
+        background: transparent;
+      }
+
+      .requiredDate{
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        vertical-align: super;
+        width: 55%;
+        background: transparent;
+      }
+
+    .itemListx.table{
+        margin-top: 3rem;
+        background: transparent !important;
+      }
+
+    .myBookingTable{
+        background: transparent;
+    }
+    section.hk-sec-wrapper.PaymentVoucher {
+        padding-top: 3rem;
+    }
+    .brTop{
+        border-top: 1px solid #e0e3e4;
+    } 
+    .table.table-bordered td{
+        border-color: #e0e3e4 !important;
+    }
+
+     td.MyBg{
+        background: #e0e3e4 !important;
+    }
+
+    /* .brTop td{
+        background: #e0e3e4 !important;
+    } */
+  
+}

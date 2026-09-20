@@ -1,0 +1,154 @@
+img.imgBoxxRec{
+    width: 220px;
+}
+
+.recieptInput{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+}
+.trackingReciepd{
+     border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 76%;
+}
+.trackingReciepd2{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 86%;
+}
+.trackingReciepd3{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 77%; 
+}
+
+.trackingReciepdPlot{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 70%; 
+}
+.trackingReciepdSize{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 70%; 
+}
+.trackingReciepdBlock{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 70%; 
+}
+.trackingReciepdCategory{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 70%; 
+}
+
+.trackingReciepd2So{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 80%; 
+}
+.trackingReciepdContact{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 73%; 
+}
+
+.trackingReciepdSum{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 83%; 
+}
+
+.trackingReciepd3Cheque{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 68%; 
+}
+.trackingReciepdDate{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 85%; 
+}
+
+.trackingReciepdProject{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    vertical-align: super;
+    width: 92.2%; 
+}
+
+.tracking6Rs{
+    border-radius: 20px;
+    vertical-align: super;
+    width: 40%; 
+    padding: 8px 10px;
+}
+
+@media print {
+
+    img.imgBoxxRec{
+        width: 190px !important;
+    }
+
+    .trackingReciepd{
+        width: 66% !important;
+    }
+    .trackingReciepd2So{
+        width: 76% !important;
+    }
+    .trackingReciepdSum{
+        width: 75% !important;
+    }
+    .trackingReciepd3Cheque{
+        width: 58% !important;
+    }
+    .trackingReciepdProject{
+        width: 82% !important;
+    }
+    .trackingReciepdCategory{
+        width: 50% !important;
+    }
+    .recieptInput{
+        width: 150px !important;
+    }
+    /* .recieptInput{
+        width: 120px;
+    }
+
+    .trackingReciepd{
+        border-top: none;
+       border-left: none;
+       border-right: none;
+       vertical-align: super;
+       width: 68% !important;
+   } */
+
+}

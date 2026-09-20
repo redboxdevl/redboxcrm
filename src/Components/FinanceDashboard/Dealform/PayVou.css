@@ -1,0 +1,38 @@
+.headTitle{
+    font-weight: bold;
+}
+.brTop{
+    border-top: 1px solid #e0e3e4;
+}
+.amInWord{
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.sigTitle{
+    text-align: center;
+    border-top: 1px solid;
+}
+
+td.MyBg{
+    background: #e0e3e4 !important;
+}
+@media print {
+    section.hk-sec-wrapper.PaymentVoucher {
+        padding-top: 3rem;
+    }
+    .brTop{
+        border-top: 1px solid #e0e3e4;
+    } 
+    .table.table-bordered td{
+        border-color: #e0e3e4 !important;
+    }
+
+     td.MyBg{
+        background: #e0e3e4 !important;
+    }
+
+    /* .brTop td{
+        background: #e0e3e4 !important;
+    } */
+  
+}

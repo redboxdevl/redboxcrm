@@ -1,0 +1,428 @@
+.profilePic{
+  width: 130px;
+  height: 170px;
+  position: absolute;
+  right: 15%;
+  top: 370px;
+  border: 5px solid black;
+  background-size: cover;
+}
+.nomineePic{
+  width: 130px;
+  height: 170px;
+  position: absolute;
+  right: 15%;
+  border: 5px solid black;
+  background-size: cover;
+}
+.tracking2booking{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 34%;
+  background: transparent;
+}
+.flexBoxBooking{
+display: flex;
+flex-wrap: wrap;
+justify-content: flex-start;
+list-style: none;
+}
+.flexBoxBooking li input{
+  width: 30px;
+  text-align: center;
+  background: transparent;
+  height: 25px;
+  font-size: 12px;
+}
+.tracking24booking{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 40.5%;
+  background: transparent;
+}
+.booking45{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 80%;
+  background: transparent;
+}
+.booking46{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 80%;
+  background: transparent;
+}
+.bookingapp{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 60%;
+  background: transparent;
+}
+.bookingdate{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 60%;
+  background: transparent;
+}
+.booking50{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 90%;
+  background: transparent;
+}
+.booking501{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 80%;
+  background: transparent;
+}
+.booking502{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 81%;
+  background: transparent;
+}
+.booking503{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 80%;
+  background: transparent;
+}
+.booking504{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 50%;
+  background: transparent;
+}
+.booking505{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 90%;
+  background: transparent;
+}
+.booking506{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 92%;
+  background: transparent;
+}
+.booking507{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 72%;
+  background: transparent;
+}
+.booking508{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 80%;
+  background: transparent;
+}
+.bookingNomine{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 60.5%;
+  background: transparent;
+}
+.bookingNomine2{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 50%;
+  background: transparent;
+}
+.bookingchaque{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 48%;
+  background: transparent;
+}
+.cap{
+  text-transform: uppercase;
+}
+.myBookingTable{
+  background-color: white;
+  /* padding: 0px 35px !important; */
+}
+.ainw{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 85%;
+  background: transparent;
+}
+.bookingTR{
+  text-align: left; 
+  float: right;
+}
+.bookingNo{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 85%;
+  background: transparent;
+}
+.bookingTracking{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 61%;
+  background: transparent;
+}
+.bookingAddress{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 90%;
+  background: transparent;
+}
+.bookingAddLine2{
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 100%;
+  background: transparent;
+}
+.weSuffer {
+  padding-top: 20px !important;
+}
+.plotAllocateBooking{
+  min-width: 230px;
+  margin-right: 10px;
+ }
+.bookingNote{
+  padding-left: 0px;
+  margin: 10px 0px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.nomDetails{
+  background-color: orange;
+  padding: 5px;
+  border-radius: 5px;
+  color: white;
+}
+/* .myTable tr td{
+  padding: 0%;
+} */
+
+@media print {
+  
+  .plotAllocateBooking{
+      min-width: 100px !important ;
+     }
+     
+     .profilePic{
+      width: 130px;
+      height: 170px;
+      right: 10%;
+      top: 230px;
+  }
+  .nomineePic{
+    width: 130px;
+    height: 170px;
+    right: 9%;
+  }
+     .bookingapp{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 50%;
+      background: transparent;
+  }
+  .bookingAddress{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 90%;
+      background: transparent;
+  }
+  .bookingAddLine2{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 100%;
+      background: transparent;
+  }
+  .bookingNo{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 60%;
+      background: transparent;
+  }
+  .bookingTracking{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 45%;
+      background: transparent;
+  }
+  .bookingTR{
+      text-align: left; 
+      float: right;
+  }
+  .tracking24booking{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 60.5%;
+      background: transparent;
+  }
+  .tracking2booking{
+      border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  vertical-align: super;
+  width: 50%;
+  background: transparent;
+  }
+  .booking45{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 70%;
+      background: transparent;
+  }
+  .booking46{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 70%;
+      background: transparent;
+  }
+  .booking50{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 80%;
+      background: transparent;
+  }
+  .booking501{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 70%;
+      background: transparent;
+  }
+  .booking502{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 73%;
+      background: transparent;
+  }
+  .booking503{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 70%;
+      background: transparent;
+  }
+  .booking504{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 35%;
+      background: transparent;
+  }
+  .booking505{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 80%;
+      background: transparent;
+  }
+  .booking506{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 82%;
+      background: transparent;
+  }
+  .booking507{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 52%;
+      background: transparent;
+  }
+  .bookingNomine{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 65.5%;
+      background: transparent;
+  }
+  .myBookingTable tr td{
+      padding: 7.3px !important;
+  }
+  .ainw{
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      vertical-align: super;
+      width: 75%;
+      background: transparent;
+  }
+
+}
