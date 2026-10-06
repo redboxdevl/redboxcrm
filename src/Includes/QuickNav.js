@@ -1,3 +1,4 @@
+import { CrmLayoutContext } from './CrmLayoutContext';
 import React, { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import $ from "jquery";
@@ -209,4 +210,7 @@ const QuickNav = ({ PendingTaskToday }) => {
   );
 };
 
-export default QuickNav;
+export default function StandaloneQuickNav(props) {
+  const embedded = React.useContext(CrmLayoutContext);
+  return embedded ? null : <QuickNav {...props} />;
+}

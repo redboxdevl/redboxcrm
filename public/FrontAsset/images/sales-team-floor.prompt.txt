@@ -1,0 +1,3 @@
+Generated using the built-in image_gen tool.
+
+Use case: photorealistic-natural. Asset type: photograph for the left panel of a minimal CRM login page. Primary request: a modern sales team floor, professionals collaborating at desks in a bright contemporary open-plan office, computer monitors with subtle indistinct charts, glass meeting rooms, natural daylight, a few muted red furnishings. Style: premium candid architectural workplace photography, believable people and proportions. Composition: landscape 3:2, wide view across the floor, team and workstations clearly visible, suitable for cropping. No text, logos or watermarks.

@@ -120,6 +120,25 @@ Before REDBOX becomes a verified first tenant, produce an explicit current-compa
 
 Do not drop/rename important columns first, guess balances, automatically merge people/properties/payments, or treat all existing rows as belonging to one tenant without evidence. Optional retirement requires static/runtime usage, consumer/deep-link review and owner acceptance.
 
+## 8A Lead Workspace V1 backend requirements
+
+**All items below are BACKEND REQUIRED.** No credentials are requested. Use source access, deployed revision metadata, sanitized contracts and synthetic/staging fixtures. Until those are supplied, preserve the existing frontend request and payload contracts; do not add server assumptions or a global Incomplete Leads route.
+
+| ID | Required backend evidence | Acceptance question |
+|---|---|---|
+| LW1 | Server-side Incomplete Leads filter and count | Can the API apply the approved conservative identity/contact rule across the full authorized dataset, return a reliable count/page, and preserve incomplete records/history? |
+| LW2 | Authoritative Assigned Lead chronology | Which field/event is the effective assignment timestamp across initial assignment and transfer? The frontend currently requests `orderby=created_at&ordertype=desc`; **global assignment chronology pending backend verification**. |
+| LW3 | Additional Assigned Leads filters | Verify supported filters and exact semantics for Profession, Temperature, Data Quality, Source, Campaign, Date Range, Last Activity, Location, and Property Interest. Enable only those supported by the controller/service/query. |
+| LW4 | Reminder history for Lead 360 | Identify the authorized history source, lead/customer key, ownership scope, and pagination/order. Do not invent a reminders tab from reminder-create routes. |
+| LW5 | Add Activity customer-ID mapping | Confirm whether an Assigned Lead response supplies the customer ID required by `/activities/:id/:cid` and `myleadactivity`; test with synthetic records before wiring. |
+| LW6 | Lead temperature authoritative model | Confirm what `getvirginleads` null means and define authoritative Hot/Warm/Cold semantics separately from Lead Status, ownership, disposition, and data quality. The current Warm label is display-only. |
+| LW7 | Lead data-quality persistence | Approve identity/contact validation, reviewer flags, quality states, history, and server write/read contract. Current Incomplete classification is derived in-memory only; no status mutation. |
+| LW8 | `listassignleads` controller/service/query | Provide route/method, joins/response serialization, pagination/count, supported filters, ordering alias, permission/company scoping, and failure/403 behavior. |
+| LW9 | `leadhistoryaction` implementation | Provide its route/controller/service/resource mapping and the exact optional fields for identity, profession, project, latest activity, call history, activity history, and no-result/error states. |
+| LW10 | Transfer/delete authorization and transaction behavior | Verify actor/scope checks, selected-ID ownership, transfer atomicity/history, delete semantics/soft-delete behavior, error response and audit. Preserve existing payloads until verified. |
+
+Related current UI boundaries: `clientDesignation` remains a display-mapped legacy field; no `OccupationTbl` join is assumed. Missing reminder-history and Add Activity customer mapping are not filled with fabricated data. The existing `/list-assign-leads` and `/lead-history/:id` routes remain unchanged.
+
 ## 9 Gate completion record
 
 | Gate | Current status | Required reviewers and exit |

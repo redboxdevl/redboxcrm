@@ -1,3 +1,4 @@
+import { CrmLayoutContext } from './CrmLayoutContext';
 import React , {useState, useEffect} from 'react';
 import { useDispatch , useSelector } from "react-redux"
 import { NavLink, useNavigate } from "react-router-dom";
@@ -466,4 +467,7 @@ ManagerCon.length == 0 ? (
 )
 }
 
-export default Navigation
+export default function StandaloneNavigation(props) {
+  const embedded = React.useContext(CrmLayoutContext);
+  return embedded ? null : <Navigation {...props} />;
+}

@@ -25,6 +25,8 @@ export const AssignLeadsAction = (agentId,page,limit,search,nature,salesId,trans
             }
         )
 
+        return response;
+
     }
     
 }

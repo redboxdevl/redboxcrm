@@ -1,3 +1,4 @@
+import { CrmLayoutContext } from './CrmLayoutContext';
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -1479,4 +1480,7 @@ function OtherNavigation() {
   );
 }
 
-export default OtherNavigation;
+export default function StandaloneOtherNavigation(props) {
+  const embedded = React.useContext(CrmLayoutContext);
+  return embedded ? null : <OtherNavigation {...props} />;
+}

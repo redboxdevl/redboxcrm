@@ -1,26 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import Navigation from "../../Includes/Navigation";
-import { useNavigate, NavLink, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AssignLeadsAction } from "../../redux/action/AssignLeadsAction";
 import { NotinterestedReasonAction } from "../../redux/action/NotinterestedReasonAction";
 import { CallingActions } from "../../redux/action/CallingActions";
 import $ from "jquery";
-import ReactPaginate from "react-paginate";
 import { actionConfig } from "../../configuration";
-import DateRangePicker from "react-bootstrap-daterangepicker";
-import "bootstrap-daterangepicker/daterangepicker.css";
 import axios from "axios";
-import CheckboxAssign from "./CheckboxAssign";
 import { CSVLink } from "react-csv";
-import Modal from "react-bootstrap/Modal";
 import { FaShareAlt, FaBell } from "react-icons/fa";
-
+import { FiPhone, FiMessageCircle, FiMail, FiRepeat, FiEdit, FiXCircle, FiBell } from "react-icons/fi";
 import { browserName } from "react-device-detect";
+import {
+  ActionCenterAction,
+  ActionCenterSection,
+  CompactDate,
+  CommunicationMetric,
+  DataQualityBadge,
+  BulkActionBar,
+  ConfirmationDialog,
+  DataTable,
+  FilterBar,
+  MoreActions,
+  PageErrorBoundary,
+  PageHeader,
+  Pagination,
+  PageState,
+  RowActions,
+  StatusBadge,
+  LeadActionCenter,
+  LeadTemperatureBadge,
+  deriveLeadDataQuality,
+} from "../SellmoreUI/AssignedLeadsPrimitives";
+import "../SellmoreUI/AssignedLeads.css";
+
+const readStoredJson = (key) => {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch {
+    return null;
+  }
+};
 
 const AssignListing = ({ dataPermission }) => {
-  const EmpData2 = JSON.parse(localStorage.getItem("empTeam"));
+  const EmpData2 = readStoredJson("empTeam");
   const resultListing = useSelector(
     (state) => state.assignLeadsreducer.assignleaddata
   );
@@ -30,9 +55,10 @@ const AssignListing = ({ dataPermission }) => {
   const proCallingresult = useSelector(
     (state) => state.Callingreducers.callingcount
   );
-  const resultRolePermssion = useSelector(
+  const rolePermissionData = useSelector(
     (state) => state.Permissiondatareducers.singledataredu
   );
+  const resultRolePermssion = Array.isArray(rolePermissionData) ? rolePermissionData : [];
   const DashboardData = useSelector(
     (state) => state.dashCountReducer.dashboardcount
   );
@@ -40,27 +66,22 @@ const AssignListing = ({ dataPermission }) => {
     (state) => state.dashboardListReducers.dashboardlistcount
   );
 
-  console.log("EmpData2", EmpData2);
-
   const dispatch = useDispatch();
 
-  const AuthDataxs = JSON.parse(localStorage.getItem("authdata"));
+  const AuthDataxs = readStoredJson("authdata");
+  const authUserId = AuthDataxs?.id;
+  const authCompanyId = AuthDataxs?.company_id;
+  const storedTeamStatus = EmpData2?.teamStatus;
+  const storedTeamObject = EmpData2?.teamObj;
 
-  const SuperCon =
-    resultRolePermssion == ""
-      ? ""
-      : resultRolePermssion.filter(
-          (edx) => edx.role_id == 3 || edx.role_id == 4
-        );
-  const AssignExport =
-    resultRolePermssion == ""
-      ? ""
-      : resultRolePermssion.filter(
-          (edx) => edx.feature_id == 50 && edx.sub_features == "Export"
-        );
+  const SuperCon = resultRolePermssion.filter(
+    (edx) => edx.role_id == 3 || edx.role_id == 4
+  );
+  const hasSuperConAccess = SuperCon.length > 0;
+  const AssignExport = resultRolePermssion.filter(
+    (edx) => edx.feature_id == 50 && edx.sub_features == "Export"
+  );
 
-  const [StartDates, setStartDate] = useState("");
-  const [EndDate, setEndDate] = useState("");
   const [TransferStatus, setTransferStatus] = useState("");
 
   const navigate = useNavigate();
@@ -71,7 +92,6 @@ const AssignListing = ({ dataPermission }) => {
   const [NotInterestedresult, setNotInterresult] = useState(false);
   const [Transferresult, setTransferresult] = useState(false);
   const [GetLeadId, setGetLeadId] = useState("");
-  const [PopupData, setPopupData] = useState("");
   const [GetPhoneNo, setPhoneNo] = useState("");
   const [PhoneNoIos, setPhoneNoIos] = useState("");
   const [PhoneNoWhatsapp, setPhoneNoWhatsapp] = useState("");
@@ -87,97 +107,72 @@ const AssignListing = ({ dataPermission }) => {
   const [LeadNature, setLeadNature] = useState("");
   const [SalesConsul, setSalesConsul] = useState("");
   const [ProjectN, setProjectN] = useState("");
-  const [DateWeekly, setDateWeekly] = useState("");
-  const [ExportAssgin, setExportAssgin] = useState("");
   const [show, setShow] = useState(false);
+  const [requestState, setRequestState] = useState("loading");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const loadAssignedLeads = useCallback(async (page = 1, filters = {}) => {
+    const AuthData = authUserId == null
+      ? readStoredJson("authdata")
+      : { id: authUserId, company_id: authCompanyId };
+    const query = filters;
 
-  function convertDatePickerTimeToMySQLTime(str) {
-    var month, day, year, hours, minutes, seconds;
-    var date = new Date(str),
-      month = ("0" + (date.getMonth() + 1)).slice(-2),
-      day = ("0" + date.getDate()).slice(-2);
-    hours = ("0" + date.getHours()).slice(-2);
-    minutes = ("0" + date.getMinutes()).slice(-2);
-    seconds = ("0" + date.getSeconds()).slice(-2);
+    if (!AuthData || AuthData.id == null) {
+      setRequestState("unavailable");
+      return;
+    }
 
-    var mySQLDate = [date.getFullYear(), month, day].join("-");
-    var mySQLTime = [hours, minutes, seconds].join(":");
-    return [mySQLDate].join(" ");
-  }
-
-  const handleEvent = (event, picker) => {
-    const dateData = convertDatePickerTimeToMySQLTime(picker._d);
-  };
-
-  const onApply = (start, end, label) => {
-    const startDate = convertDatePickerTimeToMySQLTime(start._d);
-    const EndDate = convertDatePickerTimeToMySQLTime(end._d);
-    setStartDate(startDate);
-    setEndDate(EndDate);
-  };
-
-  const locale = {
-    format: "YYYY-MM-DD",
-  };
-
-  useEffect(() => {
-    dispatch(NotinterestedReasonAction());
-    const AuthData = JSON.parse(localStorage.getItem("authdata"));
-    const EmpData = JSON.parse(localStorage.getItem("empTeam"));
-    if (SuperCon.length == 0) {
-      if (
-        EmpData == "" ||
-        EmpData == null ||
-        EmpData == undefined ||
-        EmpData2.teamStatus == "manager"
-      ) {
-        dispatch(
-          AssignLeadsAction(
-            AuthData.id == null ? "" : AuthData.id,
-            1,
-            12,
-            search,
-            LeadNature,
-            SalesConsul,
-            TransferStatus,
-            "",
-            ProjectN,
-            AuthData.company_id
-          )
-        );
+    let agentId;
+    let teamObj = "";
+    if (!hasSuperConAccess) {
+      if (storedTeamStatus == null || storedTeamStatus === "manager") {
+        agentId = AuthData.id;
       } else {
-        dispatch(
-          AssignLeadsAction(
-            "all",
-            1,
-            12,
-            search,
-            LeadNature,
-            SalesConsul,
-            TransferStatus,
-            EmpData.teamObj,
-            ProjectN,
-            AuthData.company_id
-          )
-        );
+        agentId = "all";
+        teamObj = storedTeamObject;
       }
     } else {
-      dispatch(
+      agentId = "all";
+    }
+
+    setCurrentPage(page - 1);
+    setRequestState("loading");
+    try {
+      const response = await dispatch(
         AssignLeadsAction(
-          "all",
-          1,
+          agentId,
+          page,
           12,
-          search,
-          LeadNature,
-          SalesConsul,
-          TransferStatus,
-          "",
-          ProjectN,
+          query.search,
+          query.LeadNature,
+          query.SalesConsul,
+          query.TransferStatus,
+          teamObj,
+          query.ProjectN,
           AuthData.company_id
         )
       );
+
+      if (response?.response?.status === 403) {
+        setRequestState("unavailable");
+      } else if (
+        response?.isAxiosError ||
+        response instanceof Error ||
+        !Array.isArray(response?.data)
+      ) {
+        setRequestState("error");
+      } else {
+        setRequestState(response.data.length ? "success" : "empty");
+      }
+    } catch {
+      setRequestState("error");
     }
-  }, []);
+  }, [authCompanyId, authUserId, dispatch, hasSuperConAccess, storedTeamObject, storedTeamStatus]);
+
+  useEffect(() => {
+    dispatch(NotinterestedReasonAction());
+    loadAssignedLeads(1);
+  }, [dispatch, loadAssignedLeads]);
 
   useEffect(() => {
     if (!localStorage.getItem("authdata")) {
@@ -219,20 +214,11 @@ const AssignListing = ({ dataPermission }) => {
       .catch((thrown) => {
         return thrown;
       });
-    setEmployeeresult(response.data);
-  };
-
-  const MyFunc = (leadid, agentid, phoneNo, EmailData) => {
-    setGetLeadId(leadid);
-    setPopupData(true);
-    setPhoneNo(phoneNo);
-    setEmailData(EmailData);
-    setNotInterresult(false);
-    setTransferresult(false);
-    callingData(leadid);
+    setEmployeeresult(Array.isArray(response?.data) ? response.data : []);
   };
 
   const callingData = async (leadid) => {
+    if (!AuthDataxs?.id) return;
     dispatch(CallingActions(AuthDataxs.id, leadid, AuthDataxs.company_id));
   };
   const CallingAction = async (actionType, agentid, leadid) => {
@@ -275,16 +261,11 @@ const AssignListing = ({ dataPermission }) => {
     } else if (ActioData == "reminders") {
       setNotInterresult(false);
       setTransferresult(false);
-    } else if (ActioData == "addLeads") {
-      setPopupData(false);
     } else {
       setNotInterresult(false);
       setTransferresult(false);
     }
   }
-
-  var countAssign = resultListing.length;
-  var countEmpl = Employeeresult.length;
 
   const addNotInterestedClient = (e) => {
     e.preventDefault();
@@ -348,133 +329,20 @@ const AssignListing = ({ dataPermission }) => {
       });
   };
 
-  const handlePageClick = (data) => {
-    let currentPage = data.selected + 1;
-    const AuthData = JSON.parse(localStorage.getItem("authdata"));
-    const EmpData = JSON.parse(localStorage.getItem("empTeam"));
-    if (SuperCon.length == 0) {
-      if (
-        EmpData == "" ||
-        EmpData == null ||
-        EmpData == undefined ||
-        EmpData2.teamStatus == "manager"
-      ) {
-        dispatch(
-          AssignLeadsAction(
-            AuthData.id,
-            currentPage,
-            12,
-            search,
-            LeadNature,
-            SalesConsul,
-            TransferStatus,
-            "",
-            ProjectN,
-            AuthData.company_id
-          )
-        );
-      } else {
-        dispatch(
-          AssignLeadsAction(
-            "all",
-            currentPage,
-            12,
-            search,
-            LeadNature,
-            SalesConsul,
-            TransferStatus,
-            EmpData.teamObj,
-            ProjectN,
-            AuthData.company_id
-          )
-        );
-      }
-    } else {
-      dispatch(
-        AssignLeadsAction(
-          "all",
-          currentPage,
-          12,
-          search,
-          LeadNature,
-          SalesConsul,
-          TransferStatus,
-          "",
-          ProjectN,
-          AuthData.company_id
-        )
-      );
-    }
-  };
+  const currentFilters = () => ({ search, LeadNature, SalesConsul, TransferStatus, ProjectN });
+  const handlePageClick = (data) => loadAssignedLeads(data.selected + 1, currentFilters());
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    const AuthData = JSON.parse(localStorage.getItem("authdata"));
-    const EmpData = JSON.parse(localStorage.getItem("empTeam"));
-    if (SuperCon.length == 0) {
-      if (
-        EmpData == "" ||
-        EmpData == null ||
-        EmpData == undefined ||
-        EmpData2.teamStatus == "manager"
-      ) {
-        dispatch(
-          AssignLeadsAction(
-            AuthData.id,
-            1,
-            12,
-            search,
-            LeadNature,
-            SalesConsul,
-            TransferStatus,
-            "",
-            ProjectN,
-            AuthData.company_id
-          )
-        );
-      } else {
-        dispatch(
-          AssignLeadsAction(
-            "all",
-            1,
-            12,
-            search,
-            LeadNature,
-            SalesConsul,
-            TransferStatus,
-            EmpData.teamObj,
-            ProjectN,
-            AuthData.company_id
-          )
-        );
-      }
-    } else {
-      dispatch(
-        AssignLeadsAction(
-          "all",
-          1,
-          12,
-          search,
-          LeadNature,
-          SalesConsul,
-          TransferStatus,
-          "",
-          ProjectN,
-          AuthData.company_id
-        )
-      );
-    }
+    loadAssignedLeads(1, currentFilters());
   };
 
   const handleClick = (e) => {
     const { id, checked } = e.target;
-    setIsCheck([...isCheck, id]);
-    if (!checked) {
-      setIsCheck(isCheck.filter((item) => item !== id));
-    }
+    setIsCheck((selected) => checked
+      ? Array.from(new Set([...selected, id]))
+      : selected.filter((item) => item !== id));
   };
-
-  console.log("isCheck", isCheck);
 
   const DeleteLeads = (e) => {
     e.preventDefault();
@@ -489,9 +357,9 @@ const AssignListing = ({ dataPermission }) => {
     fetch(`${actionConfig.REACT_APP_URL}leadsDeleteData`, requestOptions)
       .then((response) => response.json())
       .then((dataex) => {
-        console.log(dataex);
         if (dataex.code == 200) {
           Swal.fire("Good job!", dataex.message, "success");
+          setIsCheck([]);
           navigate("/list-assign-leads");
         } else {
           Swal.fire("Error!", dataex.message, "error");
@@ -499,18 +367,21 @@ const AssignListing = ({ dataPermission }) => {
       });
   };
 
-  const ExportData = async () => {
-    let arr = [];
-    // resultListing.data.map((curElem,index) => {
-    //   arr.push({'clientName':curElem.getleads.clientName});
-    // });
-    // setExportAssgin(arr);
-    console.log("arr", arr);
+  const clearFilters = () => {
+    const cleared = {
+      search: "",
+      LeadNature: "",
+      SalesConsul: "",
+      TransferStatus: "",
+      ProjectN: "",
+    };
+    setSearch(cleared.search);
+    setLeadNature(cleared.LeadNature);
+    setSalesConsul(cleared.SalesConsul);
+    setTransferStatus(cleared.TransferStatus);
+    setProjectN(cleared.ProjectN);
+    loadAssignedLeads(1, cleared);
   };
-
-  useEffect(() => {
-    ExportData();
-  }, [resultListing]);
 
   const handleClose = () => {
     setShow(false);
@@ -525,7 +396,6 @@ const AssignListing = ({ dataPermission }) => {
   ) => {
     setShow(true);
     setGetLeadId(leadid);
-    setPopupData(true);
     setPhoneNo(phoneNo);
     setPhoneNoWhatsapp(whatsappNo);
     setPhoneNoIos(phoneNoIos);
@@ -568,400 +438,205 @@ const AssignListing = ({ dataPermission }) => {
     }
   };
 
+  const listingData = Array.isArray(resultListing?.data) ? resultListing.data : [];
+  const exportData = listingData.map((record) => {
+    const lead = record?.getleads && typeof record.getleads === "object" ? record.getleads : {};
+    return {
+      Name: lead.clientName || "No Name",
+      "Agent Name": record?.emp_name || "",
+      "Client No": lead.clientPhone || "",
+      "Project Name": lead.clientProject || "",
+      Profession: !lead.clientDesignation || lead.clientDesignation === "-" ? "N/a" : lead.clientDesignation,
+      Date: [record?.PublishDate, record?.timeAgo].filter(Boolean).join(" "),
+    };
+  });
+  const totalRecords = resultListing?.totalRecords === "" || resultListing?.totalRecords == null
+    ? null
+    : Number.isFinite(Number(resultListing.totalRecords))
+      ? Number(resultListing.totalRecords)
+      : null;
+  const consultantOptions = Array.isArray(resultlistdashboard?.empAll) ? resultlistdashboard.empAll : [];
+  const projectOptions = Array.isArray(resultlistdashboard?.getAllProjects) ? resultlistdashboard.getAllProjects : [];
+  const activeFilterCount = [search, SalesConsul, ProjectN, TransferStatus].filter(Boolean).length;
+  const canExport = SuperCon.length > 0 && AssignExport.length > 0;
+  const visibleRecordCount = requestState === "success" || requestState === "empty"
+    ? totalRecords === null
+      ? `${listingData.length} on this page`
+      : `${totalRecords.toLocaleString()} records`
+    : null;
+
+  const renderTableState = () => {
+    if (requestState === "loading") {
+      return <PageState kind="loading" title="Loading assigned leads" description="Your current lead view is being loaded." />;
+    }
+    if (requestState === "unavailable") {
+      return <PageState kind="unavailable" title="Assigned leads are unavailable" description="This account cannot access the assigned leads response." />;
+    }
+    if (requestState === "error") {
+      return <PageState kind="error" title="Assigned leads could not be loaded" description="The request did not return a usable lead list. No record count is shown." onRetry={() => loadAssignedLeads(currentPage + 1, currentFilters())} />;
+    }
+    if (listingData.length === 0) {
+      return <PageState kind="empty" title={activeFilterCount ? "No leads match these filters" : "No assigned leads"} description={activeFilterCount ? "Clear or adjust filters to see other leads." : "There are no records to display in this view."} />;
+    }
+    return null;
+  };
+
   return (
-    <>
-      <Navigation />
-      <div className="container-fluid mt-xl-50 mt-sm-30 mt-15 pt-4">
-        <div className="hk-pg-header pt-4 pb-4 mt-2 mb-3 d-flex justify-content-between">
-          <div>
-            <h2 className="hk-pg-title font-weight-600">Assgined Leads</h2>
-          </div>
-          <div>
-            <div className="form-group d-flex">
-              {SuperCon.length == 0 ? (
-                <></>
-              ) : AssignExport.length == 0 ? (
-                <></>
-              ) : (
-                <>
-                  <CSVLink
-                    className="btn btn-danger mr-1"
-                    type="button"
-                    data={ExportAssgin}
-                    filename="AssignExport"
-                  >
-                    Export
-                  </CSVLink>
-                  <button
-                    className="btn btn-primary mr-1"
-                    type="button"
-                    onClick={DeleteLeads}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    className="btn btn-secondary mr-1"
-                    type="button"
-                    onClick={TransferLeads}
-                  >
-                    Transfer Bulk Leads
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+    <PageErrorBoundary onRetry={() => loadAssignedLeads(currentPage + 1, currentFilters())}>
+      <>
+        <Navigation />
+        <div className="container-fluid mt-xl-50 mt-sm-30 mt-15 pt-4 sellmore-assigned-leads">
+          <PageHeader
+            title="Assigned Leads"
+            description="Manage assigned leads and follow-ups."
+            actions={canExport && (
+              <CSVLink
+                className="sellmore-button sellmore-button-quiet"
+                data={exportData}
+                filename="assigned-leads-current-page.csv"
+                aria-label="Export current page"
+                title="Exports only the rows loaded on this page"
+              >
+                Export current page
+              </CSVLink>
+            )}
+          />
 
-        <div class="row pb-3">
-          <div className="col-md-2">
-            <div className="form-group">
-              <label htmlFor="">Search Anything</label>
+          <FilterBar onSubmit={handleSearch} onClear={clearFilters}>
+            <label className="sellmore-filter-field">
+              <span>Search</span>
               <input
-                type="text"
-                className="form-control"
+                type="search"
                 name="search"
-                placeholder="E.g (id,Name,phone)"
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Name, phone or ID"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
               />
-            </div>
-          </div>
-
-          <div class="col-md-2">
-            <div class="form-group">
-              <label for="">Consultants</label>
-              <select
-                name="ConsultantNmae"
-                id=""
-                class="form-control"
-                onChange={(e) => setSalesConsul(e.target.value)}
-              >
-                <option value="">Select All</option>
-                {resultlistdashboard == "" ||
-                resultlistdashboard == null ||
-                resultlistdashboard == undefined ||
-                resultlistdashboard.code == "ERR_NETWORK" ? (
-                  <></>
-                ) : (
-                  resultlistdashboard.empAll.map((items, key) => {
-                    return items.id == "" ? (
-                      <></>
-                    ) : (
-                      <option value={items.id} key={key + 1}>
-                        {items.emp_name}
-                      </option>
-                    );
-                  })
+            </label>
+            <label className="sellmore-filter-field">
+              <span>Consultant</span>
+              <select name="ConsultantNmae" value={SalesConsul} onChange={(event) => setSalesConsul(event.target.value)}>
+                <option value="">All consultants</option>
+                {consultantOptions.filter((employee) => employee?.id !== "").map((employee, index) => (
+                  <option value={employee.id} key={employee.id ?? index}>{employee.emp_name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="sellmore-filter-field">
+              <span>Project</span>
+              <select name="projectN" value={ProjectN} onChange={(event) => setProjectN(event.target.value)}>
+                <option value="">All projects</option>
+                {projectOptions.filter((project) => project?.clientProject).map((project, index) => (
+                  <option value={project.clientProject} key={`${project.clientProject}-${index}`}>{project.clientProject}</option>
+                ))}
+              </select>
+            </label>
+            <details className="sellmore-more-filters">
+              <summary>More filters</summary>
+              <div className="sellmore-more-filter-fields">
+                <label className="sellmore-filter-field">
+                  <span>Transfer leads search</span>
+                  <select name="transferType" value={TransferStatus} onChange={(event) => setTransferStatus(event.target.value)}>
+                    <option value="">All lead assignments</option>
+                    <option value="transfer">Transferred</option>
+                  </select>
+                </label>
+                {SuperCon.length > 0 && (
+                  <div className="sellmore-filter-unavailable" aria-disabled="true">
+                    <span>Date range</span>
+                    <small>Not wired to the current list request</small>
+                  </div>
                 )}
-              </select>
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <div class="form-group">
-              <label for="">Projects</label>
-              <select
-                name="projectN"
-                id=""
-                class="form-control"
-                onChange={(e) => setProjectN(e.target.value)}
-              >
-                <option value="">Select All</option>
-                {resultlistdashboard == "" ||
-                resultlistdashboard == null ||
-                resultlistdashboard == undefined ||
-                resultlistdashboard.code == "ERR_NETWORK" ? (
-                  <></>
-                ) : (
-                  resultlistdashboard.getAllProjects.map((items, key) => {
-                    return items.clientProject == "" ? (
-                      <></>
-                    ) : (
-                      <option value={items.clientProject} key={key + 1}>
-                        {items.clientProject}
-                      </option>
-                    );
-                  })
-                )}
-              </select>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="form-group">
-              <label htmlFor="">Transfer Leads Search</label>
-              <select
-                name="transferType"
-                id=""
-                className="form-control"
-                onChange={(e) => setTransferStatus(e.target.value)}
-              >
-                <option value="">Select All</option>
-                <option value="transfer">Transfer</option>
-              </select>
-            </div>
-          </div>
-
-          {SuperCon.length == 0 ? (
-            <></>
-          ) : (
-            <div class="col-md-3">
-              <div class="form-group">
-                <label for="">Date</label>
-                <DateRangePicker
-                  initialSettings={{
-                    startDate: true,
-                    endDate: true,
-                    timePicker: false,
-                    timePicker24Hour: false,
-                    locale,
-                  }}
-                  onCallback={onApply}
-                  handleEvent={handleEvent}
-                >
-                  <input class="form-control" type="text" />
-                </DateRangePicker>
               </div>
-            </div>
+            </details>
+          </FilterBar>
+
+          <div className="sellmore-list-summary" aria-live="polite">
+            <strong>{visibleRecordCount || (requestState === "loading" ? "Loading records…" : "Record count unavailable")}</strong>
+            {activeFilterCount > 0 && <span>{activeFilterCount} filters selected</span>}
+          </div>
+
+          {canExport && isCheck.length > 0 && (
+            <BulkActionBar selectedCount={isCheck.length}>
+              <button className="sellmore-button sellmore-button-primary" type="button" onClick={TransferLeads}>Transfer</button>
+              <MoreActions>
+                <button className="sellmore-button sellmore-button-danger" type="button" onClick={() => setShowDeleteConfirmation(true)}>Delete selected</button>
+              </MoreActions>
+            </BulkActionBar>
           )}
-          <div class="col-md-2">
-            <div class="form-group" style={{ marginTop: "33px" }}>
-              <button
-                type="submit"
-                name="find"
-                class="btn btn-primary"
-                style={{ width: "100%" }}
-                onClick={handleSearch}
-              >
-                Search
-              </button>
-            </div>
-          </div>
-        </div>
-        <section className="hk-sec-wrapper">
-          <div className="row">
-            <div className="col-md-12 pb-3">
-              <h4>
-                Total Records :{" "}
-                <span className="badge badge-danger">
-                  {resultListing.totalRecords}
-                </span>
-              </h4>
-            </div>
-          </div>
 
-          <div className="row">
-            <div className="col-sm">
-              <div className="table-wrap table-responsive">
-                <table
-                  id="datable_1"
-                  className="table w-100 display pb-30 no-footer dtr-inline"
-                >
-                  <thead className="thead-dark">
-                    <tr>
-                      <th width={250}>Name</th>
-                      <th>Agent Name</th>
-                      <th>Client No</th>
-                      <th>Project Name</th>
-                      <th>Designation</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {resultListing.data == null ? (
-                      <>Loading.....</>
-                    ) : resultListing.data.length > 0 ? (
-                      resultListing.data.map((curElem, index) => {
-                        if (curElem.getvirginleads == null) {
-                          var edata = "Untouch Lead";
-                          var classData = "primary";
-                        } else {
-                          var edata = "Already Call";
-                          var classData = "danger";
-                        }
-
-                        if (curElem.getreminder == null) {
-                          var data = "Not Set";
-                        } else {
-                          var data = curElem.getreminder.priority;
-                        }
-
-                        if (curElem.get_transferleads == null) {
-                          var datatra = "N/a";
-                          var transferNote = "";
-                          var transferDate = "";
-                        } else {
-                          var datatra = curElem.get_transferleads.fagentName;
-                          var transferNote =
-                            curElem.get_transferleads.transferNote;
-                          var transferDate =
-                            curElem.get_transferleads.created_at;
-                        }
-
-                        if (browserName == "Mobile Safari") {
-                          var leadClient = curElem.clientPhoneIos;
-                        } else {
-                          var leadClient = curElem.clientPhone;
-                        }
-
-                        return (
-                          <tr
-                            key={index}
-                            className={`${
-                              curElem.getvirginleads == null ? "bgCOlor" : ""
-                            }`}
+          <section className="sellmore-table-shell">
+            <DataTable>
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Agent Name</th>
+                  <th scope="col">Client No</th>
+                  <th scope="col">Project Name</th>
+                  <th scope="col">Profession</th>
+                  <th scope="col" className="sellmore-column-date">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renderTableState() ? (
+                  <tr><td className="sellmore-empty-cell" colSpan={6}>{renderTableState()}</td></tr>
+                ) : listingData.map((record, index) => {
+                  const lead = record?.getleads && typeof record.getleads === "object" ? record.getleads : {};
+                  const transfer = record?.get_transferleads;
+                  const reminder = record?.getreminder;
+                  const leadId = record?.leadid;
+                  const clientName = lead.clientName || "No Name";
+                  const leadClient = browserName === "Mobile Safari" ? record?.clientPhoneIos : record?.clientPhone;
+                  const rowKey = leadId ?? record?.id ?? `${currentPage}-${index}`;
+                  const isUntouched = record?.getvirginleads == null;
+                  const dataQuality = deriveLeadDataQuality(record);
+                  return (
+                    <tr key={rowKey}>
+                      <td>
+                        <div className="sellmore-lead-identity">
+                          <input type="checkbox" aria-label={`Select ${clientName}`} id={leadId} name={leadId} checked={isCheck.includes(String(leadId))} onChange={handleClick} />
+                          <RowActions
+                            label={`Open actions for ${clientName}`}
+                            onClick={() => handleShow(leadId, record?.agentid, lead.clientPhone, leadClient, lead.clientemail, record?.whatsappclientPhone)}
                           >
-                            <td>
-                              <div class="checkbox">
-                                <label>
-                                  <input
-                                    type="checkbox"
-                                    id={curElem.leadid}
-                                    name={curElem.leadid}
-                                    onClick={(e) => handleClick(e)}
-                                  />{" "}
-                                  <a
-                                    href="javascript:;"
-                                    className="pr-2"
-                                    onClick={() =>
-                                      handleShow(
-                                        curElem.leadid,
-                                        curElem.agentid,
-                                        curElem.getleads.clientPhone,
-                                        leadClient,
-                                        curElem.getleads.clientemail,
-                                        curElem.whatsappclientPhone
-                                      )
-                                    }
-                                  >
-                                    {curElem.getleads == null
-                                      ? ""
-                                      : curElem.getleads.clientName == ""
-                                      ? "No Name"
-                                      : curElem.getleads.clientName}
-                                  </a>
-                                </label>
-                              </div>
+                            {clientName}
+                          </RowActions>
+                        </div>
+                        <div className="sellmore-lead-meta">
+                          {isUntouched && <LeadTemperatureBadge isWarm />}
+                          {dataQuality === "incomplete" && <DataQualityBadge quality={dataQuality} />}
+                          {leadId != null && <Link className="sellmore-lead-360-link" to={`/lead-history/${leadId}`}>Lead 360</Link>}
+                          {transfer && <span className="sellmore-row-note" title={[transfer.fagentName, transfer.transferNote].filter(Boolean).join(" · ")}><FaShareAlt aria-hidden="true" />Transferred</span>}
+                          {reminder && typeof reminder === "object" && <span className="sellmore-row-note" title={reminder.reminderinfo}><FaBell aria-hidden="true" />Reminder set</span>}
+                        </div>
+                      </td>
+                      <td>{record?.emp_name || "—"}</td>
+                      <td><span className="sellmore-row-note" title={lead.clientPhone || ""}>{lead.clientPhone || "—"}</span></td>
+                      <td><span className="sellmore-row-note" title={lead.clientProject || ""}>{lead.clientProject || "—"}</span></td>
+                      <td>{!lead.clientDesignation || lead.clientDesignation === "-" ? "N/a" : <span className="sellmore-row-note" title={lead.clientDesignation}>{lead.clientDesignation}</span>}</td>
+                      <td className="sellmore-column-date"><CompactDate value={record?.PublishDate} relativeValue={record?.timeAgo} /></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </DataTable>
+            {requestState === "success" && totalRecords !== null && (
+              <Pagination pageCount={Math.ceil(totalRecords / 12)} forcePage={currentPage} onPageChange={handlePageClick} />
+            )}
+          </section>
+        </div>
 
-                              {curElem.get_transferleads == null ? (
-                                <></>
-                              ) : (
-                                <div
-                                  title={curElem.get_transferleads.fagentName}
-                                >
-                                  <FaShareAlt size={20} color="#3c71b7" />
-                                </div>
-                              )}
-
-                              {curElem.getreminder == null ||
-                              curElem.getreminder == "" ? (
-                                <></>
-                              ) : (
-                                <div title={curElem.getreminder.reminderinfo}>
-                                  <FaBell size={20} color="yellow" />
-                                </div>
-                              )}
-                            </td>
-                            <td>
-                              <Link to={`/lead-history/${curElem.leadid}`}>
-                                {curElem.emp_name}
-                              </Link>
-                            </td>
-                            <td>
-                              {curElem.getleads == "" ||
-                              curElem.getleads == null
-                                ? ""
-                                : curElem.getleads.clientPhone}
-                            </td>
-                            <td>
-                              {curElem.getleads == null
-                                ? ""
-                                : curElem.getleads.clientProject}
-                            </td>
-                            <td width={170}>
-                              {curElem.getleads == null ||
-                              curElem.getleads.clientDesignation == "-"
-                                ? "N/a"
-                                : curElem.getleads.clientDesignation}
-                            </td>
-                            {/* <td>
-<div className="align-items-center media">
-<div className="media-img-wrap">
-<div className="avatar mr-1" style={{width:'50px',height:'50px'}}>
-<img src="../frontAsset/dist/img/redbox.png" alt="user" className="avatar-img rounded-circle" style={{objectFit:'scale-down'}}/>
-</div>
-</div>
-<div className="media-body">
-<span></span>
-</div>
-</div>
-</td> */}
-                            {/* <td>
-<span className={`badge badge-primary badge-pill`}>{datatra}</span>
-<p>{transferNote}</p>
-{
-  transferDate == null || transferDate == '' ? (
-    <></>
-  ):(
-    <p><Moment date={transferDate} format="YYYY/MM/DD" /></p>
-  )
-}
-
-</td> */}
-                            {/* <td><span className="badge badge-danger badge-indicator"></span> {data} <br /> {curElem.getreminder == null || curElem.getreminder == '' ? '' : curElem.getreminder.reminderinfo}</td> */}
-                            {/* <td><span className={`badge badge-${classData} badge-pill`}>{edata}</span> </td> */}
-                            <td>
-                              {curElem.PublishDate}
-                              <br />
-                              {curElem.timeAgo}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <>
-                        <tr>
-                          <td colSpan="7">
-                            <b>No record Found....</b>
-                          </td>
-                        </tr>
-                      </>
-                    )}
-
-                    {resultListing.message !== "" ? (
-                      <tr>
-                        <td colSpan={7}>{resultListing.message}</td>
-                      </tr>
-                    ) : (
-                      <></>
-                    )}
-                  </tbody>
-                </table>
-
-                <div className="col-12">
-                  <ReactPaginate
-                    previousLabel={`previous`}
-                    nextLabel={`next`}
-                    breakLabel={`...`}
-                    pageCount={Math.ceil(resultListing.totalRecords / 12)}
-                    marginPagesDisplayed={1}
-                    pageRangeDisplayed={3}
-                    onPageChange={handlePageClick}
-                    containerClassName={`pagination justify-content-center `}
-                    pageClassName={`page-item`}
-                    pageLinkClassName={`page-link`}
-                    previousClassName={`page-item`}
-                    previousLinkClassName={`page-link`}
-                    nextLinkClassName={`page-link`}
-                    nextClassName={`page-item`}
-                    breakLinkClassName={`page-link`}
-                    breakClassName={`page-item`}
-                    activeClassName={`active`}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+        <ConfirmationDialog
+          show={showDeleteConfirmation}
+          title="Delete selected leads?"
+          message={`Confirm deletion of ${isCheck.length} selected lead${isCheck.length === 1 ? "" : "s"}.`}
+          confirmLabel="Delete selected"
+          onCancel={() => setShowDeleteConfirmation(false)}
+          onConfirm={(event) => {
+            setShowDeleteConfirmation(false);
+            DeleteLeads(event);
+          }}
+        />
 
       {/* {PopupData == true ? (
 
@@ -1151,229 +826,42 @@ curElem.id == AuthDataxs.id ? (<></>) : (<><option key={curElem.id} value={curEl
 
 } */}
 
-      <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Activity</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <LeadActionCenter show={show} onHide={handleClose}>
           <div className="modal-body p-0">
             <div className="card shadow-none">
               <div className="card-body pt-10">
-                <div className="row">
-                  <div className="col">
-                    <a
-                      href={`tel:66` + PhoneNoIos}
-                      title="Phone Call"
-                      className="PhoneCall leadimpression"
-                      onClick={() =>
-                        CallingAction("phone", AuthDataxs.id, GetLeadId)
-                      }
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-phone.png"
-                          alt="icon"
-                        />
-                        <span className="badge badge-pill badge-warning phone impData Phone">
-                          {proCallingresult == "" ||
-                          proCallingresult == null ||
-                          proCallingresult == undefined ||
-                          proCallingresult.data == "" ||
-                          proCallingresult.data == null ||
-                          proCallingresult.data == undefined
-                            ? ""
-                            : proCallingresult.data.Phone}
-                        </span>
-                        <br />
-                        <small>Phone</small>
-                      </center>
-                    </a>
+                <ActionCenterSection title="Quick communication">
+                  <div className="sellmore-action-center-actions">
+                    <ActionCenterAction icon={FiPhone} href={`tel:66${PhoneNoIos}`} disabled={!PhoneNoIos} onClick={() => CallingAction("phone", AuthDataxs.id, GetLeadId)}>Call</ActionCenterAction>
+                    <ActionCenterAction icon={FiMessageCircle} href={`https://wa.me/${PhoneNoWhatsapp}`} disabled={!PhoneNoWhatsapp} onClick={() => CallingAction("whatsapp", AuthDataxs.id, GetLeadId)}>WhatsApp</ActionCenterAction>
+                    <ActionCenterAction icon={FiMessageCircle} href={`sms:+${GetPhoneNo}&body=hi this is testing email`} disabled={!GetPhoneNo} onClick={() => CallingAction("sms", AuthDataxs.id, GetLeadId)}>SMS</ActionCenterAction>
+                    <ActionCenterAction icon={FiMail} href={`mailto:${GetEmail}`} disabled={!GetEmail} onClick={() => CallingAction("email", AuthDataxs.id, GetLeadId)}>Email</ActionCenterAction>
                   </div>
-                  <div className="col">
-                    <a
-                      href={`https://wa.me/` + PhoneNoWhatsapp}
-                      title="Whatsapp"
-                      onClick={() =>
-                        CallingAction("whatsapp", AuthDataxs.id, GetLeadId)
-                      }
-                      className="WhatsappImp leadimpression"
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-whatsapp.png"
-                          alt="icon"
-                        />
-                        <span className="badge badge-pill badge-warning whatsapp impData Whatsapp">
-                          {proCallingresult == "" ||
-                          proCallingresult == null ||
-                          proCallingresult == undefined ||
-                          proCallingresult.data == "" ||
-                          proCallingresult.data == null ||
-                          proCallingresult.data == undefined
-                            ? ""
-                            : proCallingresult.data.whatsapp}
-                        </span>
-                        <br />
-                        <small>Whatsapp</small>
-                      </center>
-                    </a>
-                  </div>
-                  <div className="col">
-                    <a
-                      href={
-                        `sms:+` + GetPhoneNo + `&body=hi this is testing email`
-                      }
-                      title="Sms"
-                      onClick={() =>
-                        CallingAction("sms", AuthDataxs.id, GetLeadId)
-                      }
-                      className="SmsImp leadimpression"
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-sms.png"
-                          alt="icon"
-                        />
-                        <span className="badge badge-pill badge-warning sms impData Sms">
-                          {proCallingresult == "" ||
-                          proCallingresult == null ||
-                          proCallingresult == undefined ||
-                          proCallingresult.data == "" ||
-                          proCallingresult.data == null ||
-                          proCallingresult.data == undefined
-                            ? ""
-                            : proCallingresult.data.sms}
-                        </span>
-                        <br />
-                        <small>SMS</small>
-                      </center>
-                    </a>
-                  </div>
-                  <div className="col">
-                    <a
-                      href={`mailto:` + GetEmail}
-                      title="Email"
-                      onClick={() =>
-                        CallingAction("email", AuthDataxs.id, GetLeadId)
-                      }
-                      className="EmailImp leadimpression"
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-envelope.png"
-                          alt="icon"
-                        />
-                        <span className="badge badge-pill badge-warning email impData Email">
-                          {proCallingresult == "" ||
-                          proCallingresult == null ||
-                          proCallingresult == undefined ||
-                          proCallingresult.data == "" ||
-                          proCallingresult.data == null ||
-                          proCallingresult.data == undefined
-                            ? ""
-                            : proCallingresult.data.email}
-                        </span>
-                        <br />
-                        <small>Email</small>
-                      </center>
-                    </a>
-                  </div>
-                </div>
+                  {proCallingresult?.data && (
+                    <div className="sellmore-communication-grid">
+                      <CommunicationMetric icon={FiPhone} label="Phone calls" value={proCallingresult.data.Phone} />
+                      <CommunicationMetric icon={FiMessageCircle} label="WhatsApp" value={proCallingresult.data.whatsapp} />
+                      <CommunicationMetric icon={FiMessageCircle} label="SMS" value={proCallingresult.data.sms} />
+                      <CommunicationMetric icon={FiMail} label="Email" value={proCallingresult.data.email} />
+                    </div>
+                  )}
+                </ActionCenterSection>
               </div>
-              <div className="card-header card-header-action">
-                <h6>Action</h6>
-              </div>
-              <div className="card-body pt-10">
-                <div className="row">
-                  <div className="col">
-                    <a
-                      href="#!"
-                      data="transfer"
-                      className="ActionPerform"
-                      onClick={() => MyFuncAction("transfer")}
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-transfer.png"
-                          alt="icon"
-                        />
-                        <br />
-                        <small>Transfer</small>
-                      </center>
-                    </a>
-                  </div>
-                  <div className="col">
-                    <NavLink
-                      to={`/add-lead/${GetLeadId}`}
-                      className="addLeads"
-                      onClick={() => MyFuncAction("addLeads")}
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-add.png"
-                          alt="icon"
-                        />
-                        <br />
-                        <small>Add</small>
-                      </center>
-                    </NavLink>
-                  </div>
-                  <div className="col">
-                    <NavLink
-                      to={`/add-reminder/${GetLeadId}`}
-                      data="reminders"
-                      className="addReminders Reminders ActionPerform"
-                      onClick={() => MyFuncAction("reminders")}
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-reminders.png"
-                          alt="icon"
-                        />
-                        <br />
-                        <small>Reminders</small>
-                      </center>
-                    </NavLink>
-                  </div>
-                  <div className="col">
-                    <a
-                      href="#!"
-                      data="remove"
-                      className="ActionPerform NotInterested"
-                      onClick={() => MyFuncAction("remove")}
-                    >
-                      <center>
-                        <img
-                          className="img-fluid rounded w-60"
-                          src="FrontAsset/dist/img/icons/icn-remove.png"
-                          alt="icon"
-                        />
-                        <br />
-                        <small>Remove</small>
-                      </center>
-                    </a>
-                  </div>
+              <ActionCenterSection title="Lead management">
+                <div className="sellmore-action-center-actions">
+                  <ActionCenterAction icon={FiRepeat} tone="primary" onClick={() => MyFuncAction("transfer")}>Transfer</ActionCenterAction>
+                  <ActionCenterAction icon={FiEdit} onClick={() => { handleClose(); navigate(`/add-lead/${GetLeadId}`); }}>Edit Lead</ActionCenterAction>
+                  <ActionCenterAction icon={FiBell} onClick={() => { handleClose(); navigate(`/add-reminder/${GetLeadId}`); }}>Reminder</ActionCenterAction>
+                  <ActionCenterAction icon={FiXCircle} tone="danger" onClick={() => MyFuncAction("remove")}>Not Interested</ActionCenterAction>
                 </div>
+              </ActionCenterSection>
 
-                <div
-                  className="modal-body"
-                  id={
-                    NotInterestedresult == false
-                      ? "notinterestedX"
-                      : "notinterestedShow"
-                  }
-                >
-                  <p>Why Client is not Interested ?</p>
+              {NotInterestedresult && (
+                <ActionCenterSection title="Disposition: Not Interested">
                   <form onSubmit={addNotInterestedClient}>
                     <div className="mt-15">
-                      {proReasonNotInterresult.map((curElem, index) => {
+                      <p className="sellmore-action-center-help">Select a reason for marking this lead not interested.</p>
+                      {(Array.isArray(proReasonNotInterresult) ? proReasonNotInterresult : []).map((curElem, index) => {
                         return (
                           <div
                             className="custom-control custom-radio mt-1 pl-0"
@@ -1435,16 +923,16 @@ curElem.id == AuthDataxs.id ? (<></>) : (<><option key={curElem.id} value={curEl
                     </div>
                     <div></div>
                   </form>
-                </div>
+                </ActionCenterSection>
+              )}
 
-                <div
-                  className="modal-body transfer"
-                  id={Transferresult == false ? "transferHide" : "transferShow"}
-                >
+              {Transferresult && (
+                <ActionCenterSection title="Transfer lead">
                   <form onSubmit={AddTransferFormData}>
                     <div className="form-group">
-                      <label>Select Agent</label>
+                      <label htmlFor="sellmore-transfer-agent">Select Agent</label>
                       <select
+                        id="sellmore-transfer-agent"
                         name="agentid"
                         className="form-control custom-select select2 mt-15"
                         onChange={(e) => setGetAgentId(e.target.value)}
@@ -1484,13 +972,13 @@ curElem.id == AuthDataxs.id ? (<></>) : (<><option key={curElem.id} value={curEl
                       </button>
                     </div>
                   </form>
-                </div>
-              </div>
+                </ActionCenterSection>
+              )}
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
+      </LeadActionCenter>
     </>
+    </PageErrorBoundary>
   );
 };
 

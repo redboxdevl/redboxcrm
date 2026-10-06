@@ -2,6 +2,7 @@ import React from "react";
 // import { useDispatch , useSelector } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./Components/SalesDashboard/Dashboard";
+import CrmLayout from "./Includes/CrmLayout";
 import AssignListing from "./Components/SalesDashboard/AssignListing";
 import ListNotintersted from "./Components/SalesDashboard/ListNotintersted";
 import ListMyLeads from "./Components/SalesDashboard/ListMyLeads";
@@ -299,6 +300,7 @@ const App = () => {
   return (
     <>
       <BrowserRouter>
+        <CrmLayout>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
@@ -1256,6 +1258,7 @@ const App = () => {
           />
           <Route path="talktime-history" exact element={<Talktimehistory />} />
         </Routes>
+        </CrmLayout>
       </BrowserRouter>
     </>
   );

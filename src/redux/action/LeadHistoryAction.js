@@ -22,6 +22,8 @@ export const LeadHistoryAction = (LeadID) =>{
             }
         )
 
+        return response;
+
     }
     
 }
