@@ -1,6 +1,6 @@
 # SELLMORE Current State Handoff
 
-Updated: **2026-10-06, Asia/Karachi**. Scope: recovered working-tree implementation and focused recovery validation. This is an operational handoff, not release certification.
+Updated: **2026-10-07, Asia/Karachi**. Scope: recovered working-tree implementation and focused recovery validation. This is an operational handoff, not release certification.
 
 ## 1. Purpose
 
@@ -21,7 +21,7 @@ SELLMORE is evolving from the existing REDBOX CRM into a commercial, multi-agenc
 
 `sellmore-recovery-2026-10-06`
 
-The safety branch was created to preserve the recovered working tree after the previous Copilot session interruption. Existing implementation remains in the working tree; branch creation does not commit those changes. No recovery checkpoint has been staged or committed during this recovery workflow.
+The safety branch was created to preserve the recovered working tree after the previous Copilot session interruption. The recovery implementation is safely checkpointed in commit `23aeaae` (`Checkpoint: recover SELLMORE architecture and Lead Workspace V1`).
 
 ## 4. Completed / Present Implementation
 
@@ -91,27 +91,26 @@ Contact / Client → Lead → Requirement → Physical Property → Listing → 
 
 Future capabilities include Broker Network, Marketplace, Builder/Developer, Maps, Notices, Marketing Studio, Academy, AI/Voice, Subscriptions and Audit/Security. Use the master architecture/domain/database documents for definitions and schemas.
 
-## 10. Current Test State
+## 10. Recovery Validation State
 
-**`src/Components/SalesDashboard/AssignListing.test.js`: 9 passed / 0 failed**, validated on **2026-10-06** using the existing runner:
+Recovery validation completed. The recovered focused test results are:
 
-```sh
-CI=true npm test -- --watchAll=false --runInBand --runTestsByPath src/Components/SalesDashboard/AssignListing.test.js
-```
+| Area | Validation result |
+|---|---|
+| Assigned Leads | 9/9 PASS |
+| Dashboard | 11/11 PASS |
+| Lead History | 4/4 PASS |
+| Deal Form containment | 1/1 PASS |
 
-Non-failing React `act(...)` warnings remain. The table-scoped `Project A` assertion passed, supporting resolution of the ambiguous filter-option/table-cell lookup. Because the test file was untracked, Git could not reconstruct the earlier reported +1/−1 edit.
+**TOTAL RECOVERED FOCUSED TESTS: 25/25 PASS**
 
-This focused mocked test result does **not** validate the entire repository suite, live API behavior or production build. These focused files exist, but their current recovery pass state has not been established:
+Non-failing React `act(...)` warnings remain in Dashboard tests.
 
-- `src/Components/SalesDashboard/Dashboard.test.js`
-- `src/Components/SalesDashboard/LeadHistory.test.js`
-- `src/Components/FinanceDashboard/Dealform/ListDealForm.test.js`
+These focused mocked test results do **not** validate the entire repository suite, live API behavior or production build. Human visual acceptance remains pending where applicable.
 
 ## 11. Current Working-Tree / Checkpoint State
 
-The read-only recovery inventory identified **13 modified tracked files and 19 untracked files** before this handoff was created: product/UI changes, four focused tests, architecture/audit/database documents, generated login image assets and dependency files. This handoff adds one new untracked document to that snapshot; confirm live Git status before staging.
-
-The recommended recovery checkpoint includes the 17 recovered product/UI files, four focused tests, six architecture/audit/database Markdown files and both generated login asset/provenance files. Include this handoff in the future checkpoint as current project memory. Use explicit paths after reviewing status; do not stage everything indiscriminately.
+The recovery implementation is safely checkpointed in commit `23aeaae` (`Checkpoint: recover SELLMORE architecture and Lead Workspace V1`). This documentation update records completed recovery validation; it does not change product architecture.
 
 Pending review/exclusion:
 
@@ -119,7 +118,7 @@ Pending review/exclusion:
 - `yarn.lock`: broad integrity/regrouping and resolution changes, including `string_decoder` and `tslib`; not merely formatting.
 - `docs/database/LEGACY_CRM_DATABASE_REFERENCE.sql`: raw reference content/provenance and repository suitability are not yet validated.
 
-No recovery Git checkpoint has been committed yet. A recovery checkpoint preserves state; a later validated checkpoint records accepted behavior.
+These three files remain outside this documentation-only checkpoint. Confirm live Git status before any future staging; use explicit paths and do not stage everything indiscriminately.
 
 ## 12. Historical Evidence
 
@@ -148,13 +147,9 @@ Evidence priority when resolving conflicts:
 
 ## 14. Immediate Next Steps
 
-Sequence to undertake only within the next explicitly approved scope; none is executed by this documentation task:
-
-1. Create the SELLMORE recovery Git checkpoint, excluding the three pending-review files above.
-2. Human visual review of Assigned Leads, Lead 360 and Lead Action Center.
-3. Validate remaining focused tests relevant to recovered work.
-4. Fix only genuine issues discovered in human/test review.
-5. Create a validated checkpoint.
-6. Start subsequent SELLMORE work packages in fresh Codex sessions.
+- Recovery validation completed.
+- Human visual acceptance remains pending where applicable.
+- Recovery implementation is safely checkpointed.
+- Future architecture/development work should start in fresh Codex sessions using this handoff as first context.
 
 No next feature implementation has been selected.
